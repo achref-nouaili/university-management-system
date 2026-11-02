@@ -1,0 +1,173 @@
+## Database
+
+### 1. Overview
+
+The project uses **PostgreSQL** as its Relational Database Management System (RDBMS).
+
+The database is responsible for storing and managing all academic, administrative, and user-related information. It is designed to ensure data integrity, consistency, security, and efficient data retrieval.
+
+**Database Name:** `university_management`
+
+**Database Management System:** PostgreSQL
+
+**ORM:** Spring Data JPA / Hibernate
+
+**Database Type:** Relational Database
+
+### 2. Database Tables
+
+The database consists of the following main tables:
+
+#### 2.1. Roles
+
+Stores the different roles available within the system.
+
+| Column | Data Type | Constraints | Description |
+
+| id | BIGINT | PRIMARY KEY | Unique role identifier |
+| name | VARCHAR(50) | UNIQUE, NOT NULL | Role name (STUDENT, TEACHER, ADMIN) |
+| description | TEXT | NULL | Role description |
+
+#### 2.2. Users
+
+Stores information about all system users, including students, teachers, and administrators.
+
+| Column | Data Type | Constraints | Description |
+
+| id | BIGINT | PRIMARY KEY | Unique user identifier |
+| first_name | VARCHAR(100) | NOT NULL | User's first name |
+| last_name | VARCHAR(100) | NOT NULL | User's last name |
+| email | VARCHAR(150) | UNIQUE, NOT NULL | User's email address |
+| password | VARCHAR(255) | NOT NULL | Hashed user password |
+| role_id | BIGINT | FOREIGN KEY | References Roles(id) |
+| phone | VARCHAR(20) | NULL | User's phone number |
+| created_at | TIMESTAMP | NOT NULL | Account creation date |
+
+#### 2.3. Courses
+
+Stores information about the courses offered by the university.
+
+| Column | Data Type | Constraints | Description |
+|---|---|---|---|
+| id | BIGINT | PRIMARY KEY | Unique course identifier |
+| name | VARCHAR(150) | NOT NULL | Course name |
+| description | TEXT | NULL | Course description |
+| teacher_id | BIGINT | FOREIGN KEY | References Users(id) |
+| semester | VARCHAR(50) | NULL | Academic semester |
+| academic_year | VARCHAR(20) | NULL | Academic year |
+
+#### 2.4. Enrollments
+
+Manages student registrations in university courses.
+
+| Column | Data Type | Constraints | Description |
+
+| id | BIGINT | PRIMARY KEY | Unique enrollment identifier |
+| student_id | BIGINT | FOREIGN KEY | References Users(id) |
+| course_id | BIGINT | FOREIGN KEY | References Courses(id) |
+| enrollment_date | DATE | NOT NULL | Registration date |
+| status | VARCHAR(30) | NOT NULL | Enrollment status |
+
+A unique constraint should be applied to the combination of `student_id` and `course_id` to prevent duplicate registrations.
+
+#### 2.5. Grades
+
+Stores the grades obtained by students in different courses.
+
+| Column | Data Type | Constraints | Description |
+
+| id | BIGINT | PRIMARY KEY | Unique grade identifier |
+| student_id | BIGINT | FOREIGN KEY | References Users(id) |
+| teacher_id | BIGINT | FOREIGN KEY | References Users(id) |
+| course_id | BIGINT | FOREIGN KEY | References Courses(id) |
+| value | DECIMAL(5,2) | NOT NULL | Grade obtained |
+| assessment_type | VARCHAR(50) | NULL | Exam, assignment, practical work, etc. |
+| publication_date | TIMESTAMP | NULL | Date the grade is published |
+
+#### 2.6. Absences
+
+Records and manages student absences.
+
+| Column | Data Type | Constraints | Description |
+
+| id | BIGINT | PRIMARY KEY | Unique absence identifier |
+| student_id | BIGINT | FOREIGN KEY | References Users(id) |
+| course_id | BIGINT | FOREIGN KEY | References Courses(id) |
+| teacher_id | BIGINT | FOREIGN KEY | References Users(id) |
+| absence_date | DATE | NOT NULL | Date of absence |
+| justification | TEXT | NULL | Absence justification |
+| status | VARCHAR(30) | NOT NULL | JUSTIFIED or UNJUSTIFIED |
+
+#### 2.7. Timetable
+
+Stores the scheduled university sessions and their corresponding information.
+
+| Column | Data Type | Constraints | Description |
+
+| id | BIGINT | PRIMARY KEY | Unique session identifier |
+| course_id | BIGINT | FOREIGN KEY | References Courses(id) |
+| teacher_id | BIGINT | FOREIGN KEY | References Users(id) |
+| session_date | DATE | NOT NULL | Session date |
+| start_time | TIME | NOT NULL | Session starting time |
+| end_time | TIME | NOT NULL | Session ending time |
+| room | VARCHAR(50) | NOT NULL | Classroom or room |
+| session_type | VARCHAR(30) | NULL | Lecture, practical work, tutorial |
+
+### 3. Database Relationships
+
+The database follows a relational structure with the following relationships:
+
+| Relationship | Cardinality | Description |
+
+| Roles - Users | One-to-Many | A role can be assigned to multiple users. |
+| Users - Courses | One-to-Many | A teacher can be responsible for multiple courses. |
+| Users - Enrollments | One-to-Many | A student can enroll in multiple courses. |
+| Courses - Enrollments | One-to-Many | A course can have multiple enrolled students. |
+| Users - Grades | One-to-Many | A student can receive multiple grades. |
+| Courses - Grades | One-to-Many | A course can contain multiple grades. |
+| Users - Absences | One-to-Many | A student can have multiple recorded absences. |
+| Courses - Absences | One-to-Many | A course can have multiple recorded absences. |
+| Courses - Timetable | One-to-Many | A course can have multiple scheduled sessions. |
+| Users - Timetable | One-to-Many | A teacher can have multiple scheduled sessions. |
+
+### 4. Database Constraints and Integrity
+
+The database uses several constraints to maintain data consistency:
+
+- **Primary Keys (PK):** Uniquely identify each record.
+- **Foreign Keys (FK):** Maintain relationships between tables.
+- **NOT NULL:** Ensure that required fields contain values.
+- **UNIQUE:** Prevent duplicate values, particularly for user email addresses and student-course enrollments.
+- **CHECK:** Validate values such as grades and session times.
+- **Referential Integrity:** Prevent invalid references between related records.
+
+### 5. Database Directory Structure
+
+Database-related files will be organized as follows:
+
+```text
+database/
+│
+├── schema/
+│   └── university_management.sql
+│
+├── scripts/
+│   ├── create_tables.sql
+│   └── insert_sample_data.sql
+│
+└── README.md
+```
+
+### 6. Future Database Extensions
+
+Additional tables may be introduced as the project evolves to support other functionalities, including:
+
+- **Notifications:** Store notifications related to timetable changes and newly published grades.
+- **Announcements:** Manage official university announcements.
+- **Administrative Requests:** Store certificate and transcript requests submitted by students.
+- **Request Status:** Track the processing status of administrative requests.
+- **Course Materials:** Store references to educational resources uploaded by teachers.
+- **University Activities:** Manage university events and student registrations.
+- **Activity Registrations:** Track student participation in university activities.
+
+The database schema may be updated throughout the development process according to the project's functional requirements.
